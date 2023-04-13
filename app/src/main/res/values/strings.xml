@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">StoryApp</string>
+    <string name="signup">Daftar</string>
+    <string name="login">Masuk</string>
+    <string name="title_signup_page">Lengkapi data dirimu di bawah ini ya</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="message_login_page">Masukkan dulu datamu ya</string>
+    <string name="name">Nama</string>
+    <string name="logout">Keluar</string>
+    <string name="title_register">Register</string>
+    <string name="title_login">Login</string>
+    <string name="desc_register">Belum punya akun?</string>
+    <string name="buttonToRegister">Daftar</string>
+
+
 </resources>
