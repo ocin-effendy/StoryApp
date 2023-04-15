@@ -11,16 +11,13 @@ import android.widget.EditText
 @SuppressLint("AppCompatCustomView")
 class PasswordEditText(context: Context, attrs: AttributeSet) : EditText(context, attrs) {
 
-    init {
-        // setup here if needed
-    }
 
     fun setError() {
-        if (text.length < 8) {
-            error = "Password harus memiliki setidaknya 8 karakter"
+        error = if (text.length < 8) {
+            "Password harus memiliki setidaknya 8 karakter"
         } else {
             setBackgroundColor(Color.TRANSPARENT)
-            error = null
+            null
         }
     }
 
@@ -32,11 +29,11 @@ class PasswordEditText(context: Context, attrs: AttributeSet) : EditText(context
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // do nothing
+
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // do nothing
+
             }
         })
     }

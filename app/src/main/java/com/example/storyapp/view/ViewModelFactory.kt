@@ -24,4 +24,6 @@ class ViewModelFactory(private val pref: UserPreferences) : ViewModelProvider.Ne
             else -> throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }
     }
+
+
 }

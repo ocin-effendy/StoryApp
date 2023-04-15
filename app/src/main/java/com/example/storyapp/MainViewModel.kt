@@ -18,5 +18,4 @@ class MainViewModel(private val pref: UserPreferences) : ViewModel() {
             pref.logout()
         }
     }
-
 }
