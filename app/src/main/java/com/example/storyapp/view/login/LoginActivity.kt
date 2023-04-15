@@ -5,32 +5,30 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import com.example.storyapp.MainActivity
-import com.example.storyapp.data.remote.response.LoginResponse
-import com.example.storyapp.data.remote.retrofit.ApiConfig
+import com.example.storyapp.data.remote.Result
 import com.example.storyapp.databinding.ActivityLoginBinding
-import com.example.storyapp.model.UserLogin
+import com.example.storyapp.model.LoginRequestBody
 import com.example.storyapp.model.UserModel
 import com.example.storyapp.model.UserPreferences
 import com.example.storyapp.view.ViewModelFactory
+import com.example.storyapp.view.DataSourceManager
 import com.example.storyapp.view.register.RegisterActivity
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var loginDataSource: LoginDataSource
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
     private lateinit var user: UserModel
@@ -40,8 +38,6 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
         setupView()
         setupViewModel()
         setupAction()
@@ -63,14 +59,18 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        loginViewModel = ViewModelProvider(
+        loginDataSource = ViewModelProvider(
             this,
-            ViewModelFactory(UserPreferences.getInstance(dataStore))
-        )[LoginViewModel::class.java]
+            DataSourceManager(UserPreferences.getInstance(dataStore))
+        )[LoginDataSource::class.java]
 
-        loginViewModel.getUser().observe(this) { user ->
+        loginDataSource.getUser().observe(this) { user ->
             this.user = user
         }
+
+        loginViewModel = viewModels<LoginViewModel> {
+            ViewModelFactory.getInstance(application)
+        }.value
     }
 
     private fun setupAction() {
@@ -85,33 +85,27 @@ class LoginActivity : AppCompatActivity() {
                 password.isEmpty() -> {
                     binding.passwordEditTextLayout.error = "Masukkan password"
                 }
-                email != user.email -> {
-                    binding.emailEditTextLayout.error = "Email tidak sesuai"
-                }
-                password != user.password -> {
-                    binding.passwordEditTextLayout.error = "Password tidak sesuai"
-                }
 
                 else -> {
-                    val userLogin = UserLogin(email, password)
-                    val client = ApiConfig.getApiService().login(userLogin)
-                    client.enqueue(object : Callback<LoginResponse> {
-                        override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                            if (response.isSuccessful) {
-                                val loginResult = response.body()?.loginResult
-                                if (loginResult != null) {
-                                    val userId = loginResult.userId
-                                    val name = loginResult.name
-                                    val token = loginResult.token
-                                    Log.i("LOGIN", name.toString())
-                                    Log.i("LOGIN", userId.toString())
-                                    Log.i("LOGIN", token.toString())
-                                    name?.let { it1 ->
+                    val loginRequestBody = LoginRequestBody(email, password)
+                    loginViewModel.postLogin(loginRequestBody)
+                    loginViewModel.loginPost.observe(this){ result ->
+                        when (result) {
+                            is Result.Loading -> {
+                                binding.progressBar.visibility = View.VISIBLE
+                            }
+                            is Result.Success -> {
+                                binding.progressBar.visibility = View.GONE
+                                val data = result.data
+                                if(data.loginResult != null){
+                                    val name = data.loginResult.name
+                                    val token = data.loginResult.token
+
+                                    name?.let { it ->
                                         if (token != null) {
-                                            loginViewModel.saveUser(UserModel(it1,email,password, true, token))
+                                            loginDataSource.saveUser(UserModel(it,email,password, true, token))
                                         }
                                     }
-
                                     AlertDialog.Builder(this@LoginActivity).apply {
                                         setTitle("Yeah!")
                                         setMessage("Anda berhasil login. Yuk langsung share ceritamu!")
@@ -124,17 +118,15 @@ class LoginActivity : AppCompatActivity() {
                                         create()
                                         show()
                                     }
+
                                 }
-                            } else {
-                                Log.i("LOGIN", "LOGIN FAILED")
+                            }
+                            is Result.Error -> {
+                                binding.progressBar.visibility = View.GONE
+                                Toast.makeText(this@LoginActivity, "Coba cek email dan password dengan benar!", Toast.LENGTH_SHORT).show()
                             }
                         }
-
-                        override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            Log.i("LOGIN", "LOGIN FAILED BECAUSE NETWORK")
-                        }
-                    })
-
+                    }
                 }
             }
         }

@@ -2,20 +2,15 @@ package com.example.storyapp
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
-import com.example.storyapp.model.UserModel
-import com.example.storyapp.model.UserPreferences
-import kotlinx.coroutines.launch
+import com.example.storyapp.data.remote.Repository
+import com.example.storyapp.data.remote.Result
+import com.example.storyapp.data.remote.response.StoryResponse
 
-class MainViewModel(private val pref: UserPreferences) : ViewModel() {
-    fun getUser(): LiveData<UserModel> {
-        return pref.getUser().asLiveData()
-    }
+class MainViewModel(private val repository: Repository) : ViewModel() {
 
-    fun logout() {
-        viewModelScope.launch {
-            pref.logout()
-        }
+    lateinit var listStory: LiveData<Result<StoryResponse>>
+
+    fun getSearchDataUser(page: Int?, size: Int?, location: Int = 0, token: String) {
+        listStory = repository.getStory(page, size, location, token)
     }
 }

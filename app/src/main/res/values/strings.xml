@@ -15,6 +15,10 @@
     <string name="user_name">Name</string>
     <string name="image_story">Image Story</string>
     <string name="user_description">Description</string>
+    <string name="camera_x">CameraX</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galeri</string>
+    <string name="upload">Unggah</string>
 
 
 </resources>

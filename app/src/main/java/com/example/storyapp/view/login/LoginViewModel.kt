@@ -2,26 +2,17 @@ package com.example.storyapp.view.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
-import com.example.storyapp.model.UserModel
-import com.example.storyapp.model.UserPreferences
-import kotlinx.coroutines.launch
+import com.example.storyapp.data.remote.Repository
+import com.example.storyapp.data.remote.Result
+import com.example.storyapp.data.remote.response.LoginResponse
+import com.example.storyapp.data.remote.response.RegisterResponse
+import com.example.storyapp.model.LoginRequestBody
+import com.example.storyapp.model.RegisterRequestBody
 
-class LoginViewModel(private val pref: UserPreferences) : ViewModel() {
-    fun getUser(): LiveData<UserModel> {
-        return pref.getUser().asLiveData()
-    }
+class LoginViewModel(private val repository: Repository) : ViewModel() {
+    lateinit var loginPost: LiveData<Result<LoginResponse>>
 
-    fun login() {
-        viewModelScope.launch {
-            pref.login()
-        }
-    }
-
-    fun saveUser(user: UserModel) {
-        viewModelScope.launch {
-            pref.saveUser(user)
-        }
+    fun postLogin(data: LoginRequestBody) {
+        loginPost = repository.postUserLogin(data)
     }
 }

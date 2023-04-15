@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FloatingButtonStyle" parent="@style/Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/purple_500</item>
+    </style>
+</resources>

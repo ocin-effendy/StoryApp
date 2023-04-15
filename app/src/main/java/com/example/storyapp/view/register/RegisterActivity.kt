@@ -1,29 +1,19 @@
 package com.example.storyapp.view.register
 
-import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.example.storyapp.R
-import com.example.storyapp.data.remote.retrofit.ApiConfig
+import androidx.appcompat.app.AppCompatActivity
+import com.example.storyapp.data.remote.Result
 import com.example.storyapp.databinding.ActivityRegisterBinding
 import com.example.storyapp.model.RegisterRequestBody
-import com.example.storyapp.model.UserModel
-import com.example.storyapp.model.UserPreferences
 import com.example.storyapp.view.ViewModelFactory
-import com.example.storyapp.view.custom.PasswordEditText
-import kotlinx.coroutines.launch
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+import com.example.storyapp.view.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
@@ -54,10 +44,9 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        registerViewModel = ViewModelProvider(
-            this,
-            ViewModelFactory(UserPreferences.getInstance(dataStore))
-        )[RegisterViewModel::class.java]
+        registerViewModel = viewModels<RegisterViewModel> {
+            ViewModelFactory.getInstance(application)
+        }.value
     }
 
     private fun setupAction() {
@@ -81,32 +70,31 @@ class RegisterActivity : AppCompatActivity() {
                         email = email,
                         password = password
                     )
-
-                        try{
-                            val response = ApiConfig.getApiService().registerUser(requestBody)
-                            if(!response.error!!){
-                                AlertDialog.Builder(this@RegisterActivity).apply {
-                                    setTitle("Yeah!")
-                                    setMessage("Akunnya sudah jadi nih. Yuk, login dan buat ceritamu!.")
-                                    setPositiveButton("Lanjut") { _, _ ->
-                                        finish()
-                                    }
-                                    create()
-                                    show()
-                                }
-                            }else{
-                                Log.e("Register", "Failed to register user response")
+                    registerViewModel.postRegister(requestBody)
+                    registerViewModel.registerPost.observe(this){result ->
+                        when (result) {
+                            is Result.Loading -> {
+                                binding.progressBar.visibility = View.VISIBLE
                             }
-
-
-                        }catch (e: Exception){
-                            binding.emailEditTextLayout.error = "Email ini sudah ada yaa!"
-                            Log.e("Register", "Failed to register user", e)
-
+                            is Result.Success -> {
+                                binding.progressBar.visibility = View.GONE
+                                AlertDialog.Builder(this@RegisterActivity).apply {
+                                setTitle("Yeah!")
+                                setMessage("Akunnya sudah jadi nih. Yuk, login dan buat ceritamu!.")
+                                setPositiveButton("Lanjut") { _, _ ->
+                                    finish()
+                                }
+                                create()
+                                show()
+                            }
+                            }
+                            is Result.Error -> {
+                                binding.progressBar.visibility = View.GONE
+                                binding.emailEditTextLayout.error = "Email ini sudah ada yaa!"
+                                Toast.makeText(this, "Register Gagal! Coba lagi yaa!", Toast.LENGTH_SHORT).show()
+                            }
                         }
-
-
-
+                    }
                 }
             }
         }

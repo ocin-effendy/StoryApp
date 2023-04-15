@@ -1,5 +1,6 @@
 package com.example.storyapp.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.storyapp.R
 import com.example.storyapp.data.remote.response.ListStoryItem
+import com.example.storyapp.view.detailsStory.DetailsStoryActivity
 
 class StoryAdapter(private val listStory: List<ListStoryItem>) : RecyclerView.Adapter<StoryAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -31,6 +33,12 @@ class StoryAdapter(private val listStory: List<ListStoryItem>) : RecyclerView.Ad
 
         viewHolder.nameUser.text = story.name
         viewHolder.descriptionUser.text = story.description
+
+        viewHolder.itemView.setOnClickListener {
+            val intentDetail = Intent(viewHolder.itemView.context, DetailsStoryActivity::class.java)
+            intentDetail.putExtra(DetailsStoryActivity.USERID, story.id)
+            viewHolder.itemView.context.startActivity(intentDetail)
+        }
     }
 
     override fun getItemCount() = listStory.size
