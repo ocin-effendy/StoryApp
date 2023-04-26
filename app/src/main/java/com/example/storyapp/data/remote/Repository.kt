@@ -1,6 +1,5 @@
 package com.example.storyapp.data.remote
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.storyapp.data.remote.response.*

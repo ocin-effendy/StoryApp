@@ -18,6 +18,8 @@ class StoryAdapter(private val listStory: List<ListStoryItem>) : RecyclerView.Ad
         val nameUser: TextView = itemView.findViewById(R.id.name_user)
         val descriptionUser: TextView = itemView.findViewById(R.id.description_user)
 
+
+
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int) = ViewHolder(
@@ -43,3 +45,5 @@ class StoryAdapter(private val listStory: List<ListStoryItem>) : RecyclerView.Ad
 
     override fun getItemCount() = listStory.size
 }
+
+

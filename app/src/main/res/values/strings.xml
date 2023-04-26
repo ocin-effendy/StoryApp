@@ -1,24 +1,23 @@
 <resources>
     <string name="app_name">StoryApp</string>
-    <string name="signup">Daftar</string>
-    <string name="login">Masuk</string>
-    <string name="title_signup_page">Lengkapi data dirimu di bawah ini ya</string>
+    <string name="title_signup_page">Complete your personal data below</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="message_login_page">Masukkan dulu datamu ya</string>
-    <string name="name">Nama</string>
-    <string name="logout">Keluar</string>
+    <string name="message_login_page">Please enter your data first</string>
+    <string name="logout">Logout</string>
     <string name="title_register">Register</string>
     <string name="title_login">Login</string>
-    <string name="desc_register">Belum punya akun?</string>
-    <string name="buttonToRegister">Daftar</string>
+    <string name="desc_register">Dont have an account yet?</string>
+    <string name="buttonToRegister">Register</string>
     <string name="user_name">Name</string>
     <string name="image_story">Image Story</string>
     <string name="user_description">Description</string>
-    <string name="camera_x">CameraX</string>
-    <string name="camera">Kamera</string>
-    <string name="gallery">Galeri</string>
-    <string name="upload">Unggah</string>
-
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="upload">Posting</string>
+    <string name="appwidget_text">Story</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="empty_text">NO DATA</string>
 
 </resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StoryApp</string>
+    <string name="title_signup_page">Lengkapi data dirimu di bawah ini ya</string>
+    <string name="email">Alamat Email</string>
+    <string name="password">Kata Sandi</string>
+    <string name="message_login_page">Masukkan dulu datamu ya</string>
+    <string name="logout">Keluar</string>
+    <string name="title_register">Daftar</string>
+    <string name="title_login">Masuk</string>
+    <string name="desc_register">Belum punya akun?</string>
+    <string name="buttonToRegister">Daftar</string>
+    <string name="user_name">Nama</string>
+    <string name="image_story">Gambar Cerita</string>
+    <string name="user_description">Deskripsi</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galeri</string>
+    <string name="upload">Unggah</string>
+    <string name="appwidget_text">Cerita</string>
+    <string name="add_widget">Tambah widget</string>
+    <string name="app_widget_description">Ini adalah deskripsi widget aplikasi</string>
+    <string name="empty_text">TIDAK ADA DATA</string>
+
+</resources>

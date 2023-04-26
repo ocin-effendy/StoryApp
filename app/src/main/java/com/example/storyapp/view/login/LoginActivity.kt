@@ -1,5 +1,7 @@
 package com.example.storyapp.view.login
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -41,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
         setupView()
         setupViewModel()
         setupAction()
+        playAnimation()
 
     }
 
@@ -135,5 +138,24 @@ class LoginActivity : AppCompatActivity() {
     fun clickToRegister(view: View) {
         val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun playAnimation() {
+
+        val titleTextView = ObjectAnimator.ofFloat(binding.titleTextView, View.ALPHA, 1f).setDuration(200)
+        val messageTextView = ObjectAnimator.ofFloat(binding.messageTextView, View.ALPHA, 1f).setDuration(200)
+        val emailTextView = ObjectAnimator.ofFloat(binding.emailTextView, View.ALPHA, 1f).setDuration(200)
+        val emailEditTextLayout = ObjectAnimator.ofFloat(binding.emailEditTextLayout, View.ALPHA, 1f).setDuration(200)
+        val passwordTextView = ObjectAnimator.ofFloat(binding.passwordTextView, View.ALPHA, 1f).setDuration(200)
+        val passwordEditTextLayout = ObjectAnimator.ofFloat(binding.passwordEditTextLayout, View.ALPHA, 1f).setDuration(200)
+        val loginButton = ObjectAnimator.ofFloat(binding.loginButton, View.ALPHA, 1f).setDuration(200)
+        val descRegister = ObjectAnimator.ofFloat(binding.descRegister, View.ALPHA, 1f).setDuration(200)
+        val buttonToRegister = ObjectAnimator.ofFloat(binding.buttonToRegister, View.ALPHA, 1f).setDuration(200)
+
+
+        AnimatorSet().apply {
+            playSequentially(titleTextView, messageTextView, emailTextView, emailEditTextLayout, passwordTextView, passwordEditTextLayout, loginButton, descRegister, buttonToRegister )
+            start()
+        }
     }
 }

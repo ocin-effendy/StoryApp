@@ -13,7 +13,6 @@ import com.example.storyapp.data.remote.Result
 import com.example.storyapp.databinding.ActivityRegisterBinding
 import com.example.storyapp.model.RegisterRequestBody
 import com.example.storyapp.view.ViewModelFactory
-import com.example.storyapp.view.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
@@ -64,6 +63,9 @@ class RegisterActivity : AppCompatActivity() {
                 password.isEmpty() -> {
                     binding.passwordEditTextLayout.error = "Masukkan password"
                 }
+                password.length < 8 -> {
+                    binding.passwordEditTextLayout.error = "Minimal 8 karakter ya!"
+                }
                 else -> {
                     val requestBody = RegisterRequestBody(
                         name = name,
@@ -90,7 +92,7 @@ class RegisterActivity : AppCompatActivity() {
                             }
                             is Result.Error -> {
                                 binding.progressBar.visibility = View.GONE
-                                binding.emailEditTextLayout.error = "Email ini sudah ada yaa!"
+                                binding.emailEditTextLayout.error = "Email bermasalah! coba lagi ya!"
                                 Toast.makeText(this, "Register Gagal! Coba lagi yaa!", Toast.LENGTH_SHORT).show()
                             }
                         }
