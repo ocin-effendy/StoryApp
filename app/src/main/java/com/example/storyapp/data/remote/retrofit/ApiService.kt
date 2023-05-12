@@ -6,6 +6,7 @@ import com.example.storyapp.model.LoginRequestBody
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
@@ -21,9 +22,18 @@ interface ApiService {
     fun getStories(
         @Query("page") page: Int?,
         @Query("size") size: Int?,
-        @Query("location") location: Int = 0,
+        @Query("location") location: Int?,
         @Header("Authorization") token: String
     ): Call<StoryResponse>
+
+
+    @GET("stories")
+    suspend fun getStories1(
+        @Query("page") page: Int?,
+        @Query("size") size: Int?,
+        @Query("location") location: Int?,
+        @Header("Authorization") token: String
+    ): StoryResponse
 
 
     @GET("stories/{id}")
@@ -37,6 +47,8 @@ interface ApiService {
     fun postStories(
         @Part file: MultipartBody.Part,
         @Part("description") description: RequestBody,
+        @Part("lat") lat: RequestBody?,
+        @Part("lon") lon: RequestBody?,
         @Header("Authorization") token: String
     ): Call<FileUploadResponse>
 }

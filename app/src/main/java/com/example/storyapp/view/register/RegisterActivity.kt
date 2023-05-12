@@ -44,7 +44,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         registerViewModel = viewModels<RegisterViewModel> {
-            ViewModelFactory.getInstance(application)
+            ViewModelFactory.getInstance()
         }.value
     }
 

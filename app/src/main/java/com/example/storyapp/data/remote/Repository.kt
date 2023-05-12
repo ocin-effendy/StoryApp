@@ -1,7 +1,13 @@
 package com.example.storyapp.data.remote
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
+import com.example.storyapp.data.StoryPagingSource
 import com.example.storyapp.data.remote.response.*
 import com.example.storyapp.data.remote.retrofit.ApiService
 import com.example.storyapp.model.LoginRequestBody
@@ -13,9 +19,20 @@ import retrofit2.Callback
 import retrofit2.Response
 
 
-class Repository private constructor(
+class Repository(
     private val apiService: ApiService,
     ) {
+
+    fun getStoryResponse(token: String): LiveData<PagingData<ListStoryItem>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 5
+            ),
+            pagingSourceFactory = {
+                StoryPagingSource(apiService, token)
+            }
+        ).liveData
+    }
 
     private fun <T> makeApiCall(apiCall: Call<T>): LiveData<Result<T>> {
         val result = MutableLiveData<Result<T>>()
@@ -43,7 +60,7 @@ class Repository private constructor(
         return result
     }
 
-    fun getStory(page: Int?, size: Int?, location: Int = 0, token: String): LiveData<Result<StoryResponse>>{
+    fun getStory(page: Int?, size: Int?, location: Int?, token: String): LiveData<Result<StoryResponse>>{
         return makeApiCall(apiService.getStories(page, size, location, "Bearer $token"))
     }
 
@@ -59,8 +76,8 @@ class Repository private constructor(
         return makeApiCall(apiService.login(data))
     }
 
-    fun postStory(imageMultipart: MultipartBody.Part, description: RequestBody, token: String): LiveData<Result<FileUploadResponse>>{
-        return makeApiCall(apiService.postStories(imageMultipart, description, "Bearer $token"))
+    fun postStory(imageMultipart: MultipartBody.Part, description: RequestBody, lat: RequestBody?, lon: RequestBody?, token: String): LiveData<Result<FileUploadResponse>>{
+        return makeApiCall(apiService.postStories(imageMultipart, description,lat, lon, "Bearer $token"))
     }
 
 

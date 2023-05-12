@@ -1,12 +1,11 @@
 package com.example.storyapp.view
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.storyapp.MainViewModel
 import com.example.storyapp.data.remote.Repository
 import com.example.storyapp.di.Injection
 import com.example.storyapp.view.detailsStory.DetailsStoryViewModel
-import com.example.storyapp.MainViewModel
 import com.example.storyapp.view.login.LoginViewModel
 import com.example.storyapp.view.register.RegisterViewModel
 import com.example.storyapp.view.story.StoryViewModel
@@ -34,9 +33,9 @@ class ViewModelFactory private constructor(private val repository: Repository) :
     companion object {
         @Volatile
         private var instance: ViewModelFactory? = null
-        fun getInstance(context: Context): ViewModelFactory =
+        fun getInstance(): ViewModelFactory =
             instance ?: synchronized(this) {
-                instance ?: ViewModelFactory(Injection.provideRepository(context))
+                instance ?: ViewModelFactory(Injection.provideRepository())
             }.also { instance = it }
     }
 }

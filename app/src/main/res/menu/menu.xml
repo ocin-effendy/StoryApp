@@ -4,9 +4,15 @@
 
 
     <item
-        android:id="@+id/favorite"
+        android:id="@+id/logout"
         android:icon="@drawable/ic_baseline_logout_24"
         android:title="@string/logout"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_maps"
+        android:icon="@drawable/ic_baseline_map_24"
+        android:title="@string/map"
+        app:showAsAction="ifRoom" />
 
 </menu>

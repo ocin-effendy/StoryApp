@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
@@ -20,6 +21,7 @@ import com.example.storyapp.MainActivity
 import com.example.storyapp.data.remote.Result
 import com.example.storyapp.databinding.ActivityStoryBinding
 import com.example.storyapp.view.ViewModelFactory
+import com.google.android.gms.location.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -27,28 +29,19 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
+
+@Suppress("UNUSED_EXPRESSION", "UNUSED_ANONYMOUS_PARAMETER")
 class StoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStoryBinding
     private lateinit var storyViewModel: StoryViewModel
     private var getFile: File? = null
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private var isLocationTaken = false
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (!allPermissionsGranted()) {
-                Toast.makeText(
-                    this,
-                    "Tidak mendapatkan permission.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-        }
-    }
+
+
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
@@ -59,8 +52,11 @@ class StoryActivity : AppCompatActivity() {
         binding = ActivityStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+
         storyViewModel = viewModels<StoryViewModel> {
-            ViewModelFactory.getInstance(application)
+            ViewModelFactory.getInstance()
         }.value
 
         if (!allPermissionsGranted()) {
@@ -73,7 +69,51 @@ class StoryActivity : AppCompatActivity() {
         binding.cameraButton.setOnClickListener { startTakePhoto() }
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.uploadButton.setOnClickListener { uploadImage() }
+        binding.locationSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                getLocation()
+            }
+        }
+
     }
+
+
+    private fun getLocation(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
+            return
+        }
+
+        if (isLocationTaken) {
+            return
+        }
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 1000
+            fastestInterval = 500
+        }
+
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult
+                for (location in locationResult.locations) {
+                    if (location != null) {
+                        latitude = location.latitude
+                        longitude = location.longitude
+                        isLocationTaken = true
+                        fusedLocationProviderClient.removeLocationUpdates(this)
+                    }
+                }
+            }
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }
+
+
 
     @SuppressLint("QueryPermissionsNeeded")
     private fun startTakePhoto() {
@@ -107,6 +147,10 @@ class StoryActivity : AppCompatActivity() {
             val message = "Storiku hari ini gaes"
             val desc = binding.descriptionEditText.text.toString()
 
+            val latPart = latitude?.toString()?.toRequestBody("text/plain".toMediaType())
+            val lonPart = longitude?.toString()?.toRequestBody("text/plain".toMediaType())
+
+
             val description = if (desc.isNotEmpty()) {
                 desc.toRequestBody("text/plain".toMediaType())
             } else {
@@ -121,7 +165,7 @@ class StoryActivity : AppCompatActivity() {
                 requestImageFile
             )
 
-            storyViewModel.postStory(imageMultipart, description, token!!)
+            storyViewModel.postStory(imageMultipart, description, latPart, lonPart, token!!)
             storyViewModel.storyPost.observe(this){result ->
                 when (result) {
                     is Result.Loading -> {

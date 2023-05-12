@@ -1,15 +1,11 @@
 package com.example.storyapp.view.detailsStory
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.storyapp.MainDataSource
@@ -20,8 +16,8 @@ import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.DataSourceManager
 import com.example.storyapp.data.remote.Result
 import com.example.storyapp.data.remote.response.DetailsStoryResponse
+import com.example.storyapp.view.login.dataStore
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 class DetailsStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailsStoryBinding
     private lateinit var detailsStoryViewModel: DetailsStoryViewModel
@@ -43,7 +39,7 @@ class DetailsStoryActivity : AppCompatActivity() {
             val userId = intent.getStringExtra(USERID)
 
             detailsStoryViewModel = viewModels<DetailsStoryViewModel> {
-                ViewModelFactory.getInstance(application)
+                ViewModelFactory.getInstance()
             }.value
 
             user.token.let {

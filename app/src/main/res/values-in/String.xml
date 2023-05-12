@@ -20,5 +20,11 @@
     <string name="add_widget">Tambah widget</string>
     <string name="app_widget_description">Ini adalah deskripsi widget aplikasi</string>
     <string name="empty_text">TIDAK ADA DATA</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="map">Peta</string>
+    <string name="text_field">Masukkan deskripsi cerita</string>
+    <string name="lacation_button">Gunakan lokasi</string>
+    <string name="retry">Coba lagi</string>
+
 
 </resources>

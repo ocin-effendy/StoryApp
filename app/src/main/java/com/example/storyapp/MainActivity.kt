@@ -2,31 +2,30 @@ package com.example.storyapp
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.storyapp.adapter.StoryAdapter
-import com.example.storyapp.data.remote.response.ListStoryItem
-import com.example.storyapp.data.remote.response.StoryResponse
+import com.example.storyapp.adapter.LoadingStateAdapter
+import com.example.storyapp.adapter.StoryListAdapter
 import com.example.storyapp.databinding.ActivityMainBinding
 import com.example.storyapp.model.UserModel
 import com.example.storyapp.model.UserPreferences
-import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.DataSourceManager
+import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.login.LoginActivity
-import kotlinx.coroutines.*
-import com.example.storyapp.data.remote.Result
+import com.example.storyapp.view.maps.MapsActivity
 import com.example.storyapp.view.story.StoryActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.*
 
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -48,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         )[MainDataSource::class.java]
 
         mainViewModel = viewModels<MainViewModel> {
-            ViewModelFactory.getInstance(application)
+            ViewModelFactory.getInstance()
         }.value
 
         mainDataSource.getUser().observe(this) { user ->
@@ -61,24 +60,6 @@ class MainActivity : AppCompatActivity() {
                 setContentView(binding.root)
                 showRecyclerList()
 
-                mainViewModel.getSearchDataUser(null, null, 0, user.token)
-
-                mainViewModel.listStory.observe(this){ result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            binding.progressBar.visibility = View.VISIBLE
-                        }
-                        is Result.Success -> {
-                            binding.progressBar.visibility = View.GONE
-                            val data = result.data
-                            setData(data)
-                        }
-                        is Result.Error -> {
-                            binding.progressBar.visibility = View.GONE
-                        }
-                    }
-                }
-
                 fab = binding.fab
                 fab.setOnClickListener {
                     val intent = Intent(this, StoryActivity::class.java)
@@ -86,14 +67,23 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
 
                 }
+                mainViewModel.getStory(user.token)
+                getData()
             }
         }
 
     }
 
-    private fun setData(response: StoryResponse) {
-        val adapter = StoryAdapter(response.listStory as List<ListStoryItem>)
-        binding.viewCard.adapter = adapter
+    private fun getData() {
+        val adapter = StoryListAdapter()
+        binding.viewCard.adapter = adapter.withLoadStateFooter(
+            footer = LoadingStateAdapter {
+                adapter.retry()
+            }
+        )
+        mainViewModel.story.observe(this) {
+            adapter.submitData(lifecycle, it)
+        }
     }
 
     private fun showRecyclerList() {
@@ -110,7 +100,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        mainDataSource.logout()
-        return super.onOptionsItemSelected(item)
+        return when(item.itemId){
+            R.id.action_maps ->{
+                Log.i("MAPS", "MASUK KE MAPS INTENT")
+                val intent = Intent(this, MapsActivity::class.java)
+                intent.putExtra("TOKEN", user.token)
+                startActivity(intent)
+                return true
+            }
+            R.id.logout -> {
+                mainDataSource.logout()
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+
+
     }
 }

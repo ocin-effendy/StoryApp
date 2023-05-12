@@ -27,8 +27,7 @@ import com.example.storyapp.view.ViewModelFactory
 import com.example.storyapp.view.DataSourceManager
 import com.example.storyapp.view.register.RegisterActivity
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 class LoginActivity : AppCompatActivity() {
     private lateinit var loginDataSource: LoginDataSource
     private lateinit var loginViewModel: LoginViewModel
@@ -70,73 +69,79 @@ class LoginActivity : AppCompatActivity() {
         loginDataSource.getUser().observe(this) { user ->
             this.user = user
         }
-
         loginViewModel = viewModels<LoginViewModel> {
-            ViewModelFactory.getInstance(application)
+            ViewModelFactory.getInstance()
         }.value
     }
 
     private fun setupAction() {
 
         binding.loginButton.setOnClickListener {
-            val email = binding.emailEditText.text.toString()
-            val password = binding.passwordEditText.text.toString()
-            when {
-                email.isEmpty() -> {
-                    binding.emailEditTextLayout.error = "Masukkan email"
-                }
-                password.isEmpty() -> {
-                    binding.passwordEditTextLayout.error = "Masukkan password"
-                }
+            if(binding.passwordEditText.error.isNullOrEmpty()){
+                val email = binding.emailEditText.text.toString()
+                val password = binding.passwordEditText.text.toString()
+                when {
+                    email.isEmpty() -> {
+                        binding.emailEditTextLayout.error = "Masukkan email"
+                    }
+                    password.isEmpty() -> {
+                        binding.passwordEditTextLayout.error = "Masukkan password"
+                    }
 
-                else -> {
-                    val loginRequestBody = LoginRequestBody(email, password)
-                    loginViewModel.postLogin(loginRequestBody)
-                    loginViewModel.loginPost.observe(this){ result ->
-                        when (result) {
-                            is Result.Loading -> {
-                                binding.progressBar.visibility = View.VISIBLE
-                            }
-                            is Result.Success -> {
-                                binding.progressBar.visibility = View.GONE
-                                val data = result.data
-                                if(data.loginResult != null){
-                                    val name = data.loginResult.name
-                                    val token = data.loginResult.token
-
-                                    name?.let { it ->
-                                        if (token != null) {
-                                            loginDataSource.saveUser(UserModel(it,email,password, true, token))
-                                        }
-                                    }
-                                    AlertDialog.Builder(this@LoginActivity).apply {
-                                        setTitle("Yeah!")
-                                        setMessage("Anda berhasil login. Yuk langsung share ceritamu!")
-                                        setPositiveButton("Lanjut") { _, _ ->
-                                            val intent = Intent(context, MainActivity::class.java)
-                                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                            startActivity(intent)
-                                            finish()
-                                        }
-                                        create()
-                                        show()
-                                    }
-
+                    else -> {
+                        val loginRequestBody = LoginRequestBody(email, password)
+                        loginViewModel.postLogin(loginRequestBody)
+                        loginViewModel.loginPost.observe(this){ result ->
+                            when (result) {
+                                is Result.Loading -> {
+                                    binding.progressBar.visibility = View.VISIBLE
                                 }
-                            }
-                            is Result.Error -> {
-                                binding.progressBar.visibility = View.GONE
-                                Toast.makeText(this@LoginActivity, "Coba cek email dan password dengan benar!", Toast.LENGTH_SHORT).show()
+                                is Result.Success -> {
+                                    binding.progressBar.visibility = View.GONE
+                                    val data = result.data
+                                    if(data.loginResult != null){
+                                        val name = data.loginResult.name
+                                        val token = data.loginResult.token
+
+                                        name?.let { it ->
+                                            if (token != null) {
+                                                loginDataSource.saveUser(UserModel(it,email,password, true, token))
+                                            }
+                                        }
+                                        AlertDialog.Builder(this@LoginActivity).apply {
+                                            setTitle("Yeah!")
+                                            setMessage("Anda berhasil login. Yuk langsung share ceritamu!")
+                                            setPositiveButton("Lanjut") { _, _ ->
+                                                val intent = Intent(context, MainActivity::class.java)
+                                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                                startActivity(intent)
+                                                finish()
+                                            }
+                                            create()
+                                            show()
+                                        }
+
+                                    }
+                                }
+                                is Result.Error -> {
+                                    binding.progressBar.visibility = View.GONE
+                                    Toast.makeText(this@LoginActivity, "Coba cek email dan password dengan benar!", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     }
                 }
+
+            }else{
+                Toast.makeText(this@LoginActivity, "Coba password dengan benar!", Toast.LENGTH_SHORT).show()
+
             }
+
         }
     }
 
     fun clickToRegister(view: View) {
-        val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
+        val intent = Intent(  this@LoginActivity, RegisterActivity::class.java)
         startActivity(intent)
     }
 
